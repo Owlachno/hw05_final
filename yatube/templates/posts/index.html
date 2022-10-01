@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% load thumbnail %}
+
+{% load cache %}
+
+
+  {% block title %} Последние обновления на сайте {% endblock %}
+
+  {% block content %}
+
+    <div class="container py-5">   
+
+      <h1>{{ title }}</h1>
+
+      <article>
+
+          {% include 'posts/includes/switcher.html' %}
+        
+          {% for post in page_obj %}
+            {% include 'includes/post_data.html' with show_profile_posts=True show_group_list=True %}
+          {% endfor %}
+
+      </article>
+
+    </div>
+
+    {% include 'posts/includes/paginator.html' %}
+    
+  {% endblock %}
+

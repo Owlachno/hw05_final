@@ -1,9 +1,19 @@
 from http import HTTPStatus
+
 from django.urls import reverse
 from django.test import TestCase, Client
 from django.core.cache import cache
 
 from ..models import Post, Group, User
+
+
+INDEX_URL = 'posts:index'
+GROUP_URL = 'posts:group_list'
+PROFILE_URL = 'posts:profile'
+POST_DETAIL_URL = 'posts:post_detail'
+POST_CREATE_URL = 'posts:post_create'
+POST_EDIT_URL = 'posts:post_edit'
+FOLLOW_INDEX = 'posts:follow_index'
 
 
 class PostURLTests(TestCase):
@@ -27,35 +37,39 @@ class PostURLTests(TestCase):
             group=cls.group
         )
 
-        cls.public_urls_templates = {
-            'posts:index': {
-                'url': reverse('posts:index'),
-                'template': 'posts/index.html'
-            },
-            'posts:group_list': {
-                'url': reverse('posts:group_list', args=[cls.group.slug]),
-                'template': 'posts/group_list.html'
-            },
-            'posts:profile': {
-                'url': reverse('posts:profile', args=[cls.author.username]),
-                'template': 'posts/profile.html'
-            },
-            'posts:post_detail': {
-                'url': reverse('posts:post_detail', args=[cls.post.id]),
-                'template': 'posts/post_detail.html'
-            },
-        }
+        cls.public_urls_temp_list = [
+            (
+                reverse(INDEX_URL),
+                'posts/index.html',
+            ),
+            (
+                reverse(GROUP_URL, args=[cls.group.slug]),
+                'posts/group_list.html',
+            ),
+            (
+                reverse(PROFILE_URL, args=[cls.author.username]),
+                'posts/profile.html',
+            ),
+            (
+                reverse(POST_DETAIL_URL, args=[cls.post.id]),
+                'posts/post_detail.html',
+            )   
+        ]
 
-        cls.private_urls_templates = {
-            'posts:post_create': {
-                'url': reverse('posts:post_create'),
-                'template': 'posts/create_post.html'
-            },
-            'posts:post_edit': {
-                'url': reverse('posts:post_edit', args=[cls.post.id]),
-                'template': 'posts/create_post.html'
-            }
-        }
+        cls.private_urls_temp_list = [
+            (
+                reverse(POST_CREATE_URL),
+                'posts/create_post.html',
+            ),
+            (
+                reverse(POST_EDIT_URL, args=[cls.post.id]),
+                'posts/create_post.html',
+            ),
+            (
+                reverse(FOLLOW_INDEX),
+                'posts/follow.html',
+            )
+        ]
 
     def setUp(self):
         cache.clear()
@@ -74,16 +88,13 @@ class PostURLTests(TestCase):
         URL-адрес использует соответствующий
         шаблон для публичных страниц."""
 
-        for name in PostURLTests.public_urls_templates:
-            with self.subTest(name=name):
-
-                response = self.test_client.get(
-                    PostURLTests.public_urls_templates[name]['url']
-                )
+        for url, template in PostURLTests.public_urls_temp_list:
+            with self.subTest(url=url):
+                response = self.test_client.get(url)
 
                 self.assertTemplateUsed(
                     response,
-                    PostURLTests.public_urls_templates[name]['template']
+                    template
                 )
 
                 self.assertEqual(response.status_code, HTTPStatus.OK)
@@ -95,20 +106,13 @@ class PostURLTests(TestCase):
         URL-адрес использует соответствующий
         шаблон для приватных страниц."""
 
-        for name in PostURLTests.private_urls_templates:
-            with self.subTest(name=name):
-
-                response = self.author_client.get(
-                    PostURLTests.private_urls_templates[name]['url']
-                )
-
-                response_template = self.author_client.get(
-                    PostURLTests.private_urls_templates[name]['url']
-                )
+        for url, template in PostURLTests.private_urls_temp_list:
+            with self.subTest(url=url):
+                response = self.author_client.get(url)
 
                 self.assertTemplateUsed(
-                    response_template,
-                    PostURLTests.private_urls_templates[name]['template']
+                    response,
+                    template
                 )
 
                 self.assertEqual(response.status_code, HTTPStatus.OK)
@@ -128,8 +132,7 @@ class PostURLTests(TestCase):
         анонимного пользователя на страницу логина."""
 
         response = self.test_client.get(
-            PostURLTests.private_urls_templates['posts:post_create']['url'],
-            follow=True
+            reverse(POST_CREATE_URL)
         )
 
         self.assertRedirects(
@@ -141,11 +144,11 @@ class PostURLTests(TestCase):
         не автора поста на страницу подробной информации о посте"""
 
         response = self.user_client.get(
-            PostURLTests.private_urls_templates['posts:post_edit']['url'],
+            reverse(POST_EDIT_URL, args=[PostURLTests.post.id]),
             follow=True
         )
 
         self.assertRedirects(
             response,
-            PostURLTests.public_urls_templates['posts:post_detail']['url']
+            reverse(POST_DETAIL_URL, args=[PostURLTests.post.id])
         )

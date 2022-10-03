@@ -25,6 +25,17 @@ FOLLOW_INDEX = 'posts:follow_index'
 
 TEMP_MEDIA_ROOT = tempfile.mkdtemp(dir=settings.BASE_DIR)
 
+IMAGE_VALUE = (
+            b'\x47\x49\x46\x38\x39\x61\x02\x00'
+            b'\x01\x00\x80\x00\x00\x00\x00\x00'
+            b'\xFF\xFF\xFF\x21\xF9\x04\x00\x00'
+            b'\x00\x00\x00\x2C\x00\x00\x00\x00'
+            b'\x02\x00\x01\x00\x00\x02\x02\x0C'
+            b'\x0A\x00\x3B'
+        )
+
+IMAGE_NAME = 'small.gif'
+
 
 @override_settings(MEDIA_ROOT=TEMP_MEDIA_ROOT)
 class PostViewsTests(TestCase):
@@ -73,6 +84,8 @@ class PostViewsTests(TestCase):
         self.author_client = Client()
         self.follower_client = Client()
 
+        self.test_client.force_login(PostViewsTests.author)
+
     def test_context_contains_key(self):
         """Словарь context содержит необходимый ключ"""
 
@@ -117,8 +130,6 @@ class PostViewsTests(TestCase):
             )
         ]
 
-        self.test_client.force_login(self.author)
-
         for url, key in urls_keys_list:
             with self.subTest(url=url):
 
@@ -128,8 +139,6 @@ class PostViewsTests(TestCase):
                     key,
                     response.context.keys()
                 )
-
-        self.test_client.logout()
 
     def test_correct_context(self):
         """Шаблоны index group_list profile
@@ -185,8 +194,6 @@ class PostViewsTests(TestCase):
     def test_post_create_page_show_correct_context(self):
         """Шаблон post_create сформирован с правильным контекстом."""
 
-        self.test_client.force_login(self.author)
-
         response = self.test_client.get(
             reverse(POST_CREATE_URL)
         )
@@ -201,17 +208,13 @@ class PostViewsTests(TestCase):
                 form_field = response.context.get(KEY_FORM).fields.get(value)
                 self.assertIsInstance(form_field, expected)
 
-        self.test_client.logout()
-
     def test_post_edit_page_show_correct_context(self):
         """Шаблон post_edit сформирован с правильным контекстом."""
 
-        POST1 = PostViewsTests.posts_list[12].pk
-
-        self.test_client.force_login(self.author)
+        POST1 = Post.objects.latest('-pub_date')
 
         response = self.test_client.get(
-            reverse(POST_EDIT_URL, args=[POST1])
+            reverse(POST_EDIT_URL, args=[POST1.pk])
         )
 
         form_fields = [
@@ -223,8 +226,6 @@ class PostViewsTests(TestCase):
             with self.subTest(value=value):
                 form_field = response.context.get(KEY_FORM).fields.get(value)
                 self.assertIsInstance(form_field, expected)
-
-        self.test_client.logout()
 
     def test_correct_show_of_post(self):
         """Проверка: post13 отображается на главной странице, в group1,
@@ -285,24 +286,15 @@ class PostViewsTests(TestCase):
         """Context содержит изображение для страниц
         index  group_list  profile  post_detail"""
 
-        self.test_client.force_login(self.author)
-
-        small_gif = (
-            b'\x47\x49\x46\x38\x39\x61\x02\x00'
-            b'\x01\x00\x80\x00\x00\x00\x00\x00'
-            b'\xFF\xFF\xFF\x21\xF9\x04\x00\x00'
-            b'\x00\x00\x00\x2C\x00\x00\x00\x00'
-            b'\x02\x00\x01\x00\x00\x02\x02\x0C'
-            b'\x0A\x00\x3B'
-        )
+        small_gif = IMAGE_VALUE
         self.uploaded = SimpleUploadedFile(
-            name='small.gif',
+            name=IMAGE_NAME,
             content=small_gif,
             content_type='image/gif'
         )
 
         uploaded = SimpleUploadedFile(
-            name='small_edit.gif',
+            name=IMAGE_NAME,
             content=small_gif,
             content_type='image/gif'
         )
@@ -354,8 +346,8 @@ class PostViewsTests(TestCase):
         """Новый пост автора отображается в ленте подписчика,
         но не отображается в ленте другого пользователя."""
 
-        self.test_client.force_login(PostViewsTests.user)
         self.author_client.force_login(PostViewsTests.author)
+        self.test_client.force_login(PostViewsTests.user)
         self.follower_client.force_login(PostViewsTests.follower)
 
         self.follower_client.post(

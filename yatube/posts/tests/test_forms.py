@@ -11,6 +11,17 @@ from ..models import Post, User, Comment, Follow
 
 TEMP_MEDIA_ROOT = tempfile.mkdtemp(dir=settings.BASE_DIR)
 
+IMAGE_VALUE = (
+            b'\x47\x49\x46\x38\x39\x61\x02\x00'
+            b'\x01\x00\x80\x00\x00\x00\x00\x00'
+            b'\xFF\xFF\xFF\x21\xF9\x04\x00\x00'
+            b'\x00\x00\x00\x2C\x00\x00\x00\x00'
+            b'\x02\x00\x01\x00\x00\x02\x02\x0C'
+            b'\x0A\x00\x3B'
+        )
+
+IMAGE_NAME = 'small.gif'
+
 
 @override_settings(MEDIA_ROOT=TEMP_MEDIA_ROOT)
 class PostCreateFormTest(TestCase):
@@ -36,16 +47,10 @@ class PostCreateFormTest(TestCase):
 
         self.posts_count = Post.objects.count()
 
-        small_gif = (
-            b'\x47\x49\x46\x38\x39\x61\x02\x00'
-            b'\x01\x00\x80\x00\x00\x00\x00\x00'
-            b'\xFF\xFF\xFF\x21\xF9\x04\x00\x00'
-            b'\x00\x00\x00\x2C\x00\x00\x00\x00'
-            b'\x02\x00\x01\x00\x00\x02\x02\x0C'
-            b'\x0A\x00\x3B'
-        )
+        small_gif = IMAGE_VALUE
+
         self.uploaded = SimpleUploadedFile(
-            name='small.gif',
+            name=IMAGE_NAME,
             content=small_gif,
             content_type='image/gif'
         )
@@ -95,16 +100,9 @@ class PostCreateFormTest(TestCase):
 
         posts_count = Post.objects.count()
 
-        small_edit_gif = (
-            b'\x47\x49\x46\x38\x39\x61\x02\x00'
-            b'\x01\x00\x80\x00\x00\x00\x00\x00'
-            b'\xFF\xFF\xFF\x21\xF9\x04\x00\x00'
-            b'\x00\x00\x00\x2C\x00\x00\x00\x00'
-            b'\x02\x00\x01\x00\x00\x02\x02\x0C'
-            b'\x0A\x00\x3B'
-        )
+        small_edit_gif = IMAGE_VALUE
         uploaded = SimpleUploadedFile(
-            name='small_edit.gif',
+            name=IMAGE_NAME,
             content=small_edit_gif,
             content_type='image/gif'
         )

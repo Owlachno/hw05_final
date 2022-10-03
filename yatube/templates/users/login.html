@@ -17,17 +17,21 @@
           >
           {% csrf_token %}
 
-          {% for field in form %}
-            <div class="form-group row my-3"
-              {% if field.field.required %} 
-                aria-required="true"
-              {% else %}
-                aria-required="false"
-              {% endif %}
-            >        
-              {% include 'includes/post_field.html' %}
-  
-          {% endfor %}
+          <div class="form-group row my-3"
+            {% if field.field.required %} 
+              aria-required="true"
+            {% else %}
+              aria-required="false"
+            {% endif %}
+          > 
+
+            {% for field in form %}
+        
+                {% include 'includes/post_field.html' %}
+    
+            {% endfor %}
+            
+          </div>
           <div class="col-md-6 offset-md-4">
             <button type="submit" class="btn btn-primary">
               Войти

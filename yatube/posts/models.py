@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import CheckConstraint, UniqueConstraint, Q, F
 from django.contrib.auth import get_user_model
 
 
@@ -75,6 +76,9 @@ class Comment(models.Model):
         verbose_name='Дата публикации'
     )
 
+    class Meta:
+        ordering = ['-created']
+
 
 class Follow(models.Model):
     user = models.ForeignKey(
@@ -89,3 +93,15 @@ class Follow(models.Model):
         related_name='following',
         verbose_name='Автор'
     )
+
+    class Meta:
+        constraints = [
+            CheckConstraint(
+                check=~Q(author=F('user')), 
+                name='check_equal_author_user',
+            ),
+            UniqueConstraint(
+                fields=['user', 'author'],
+                name='unique_user_author'
+            )
+        ]

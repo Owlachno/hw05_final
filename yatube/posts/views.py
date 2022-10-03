@@ -11,7 +11,7 @@ from .utils import get_page
 def index(request):
     page_obj = get_page(Post.objects.all(), request)
 
-    return render(request, 'posts/index.html', context={'page_obj': page_obj,})
+    return render(request, 'posts/index.html', context={'page_obj': page_obj})
 
 
 def group_posts(request, slug):
@@ -19,7 +19,11 @@ def group_posts(request, slug):
     posts = group.posts.all()
     page_obj = get_page(posts, request)
 
-    return render(request, 'posts/group_list.html', context={'group': group, 'page_obj': page_obj,})
+    return render(
+        request, 'posts/group_list.html', context={
+            'group': group, 'page_obj': page_obj,
+        }
+    )
 
 
 def profile(request, username):
@@ -36,8 +40,8 @@ def profile(request, username):
 
     if request.user.is_authenticated:
         following = Follow.objects.filter(
-                        user=request.user, author=author
-                    ).exists()
+            user=request.user, author=author
+        ).exists()
 
     context = {
         'author': author,
@@ -85,7 +89,11 @@ def post_create(request):
         post.save()
         return redirect('posts:profile', request.user.username)
 
-    return render(request, 'posts/create_post.html', context={'form': form, 'is_edit': True})
+    return render(
+        request, 'posts/create_post.html', context={
+            'form': form, 'is_edit': True
+        }
+    )
 
 
 @login_required
@@ -132,7 +140,7 @@ def follow_index(request):
     posts_list = Post.objects.filter(author__following__user=request.user)
     page_obj = get_page(posts_list, request)
 
-    return render(request, 'posts/follow.html', context={'page_obj': page_obj,})
+    return render(request, 'posts/follow.html', context={'page_obj': page_obj})
 
 
 @login_required

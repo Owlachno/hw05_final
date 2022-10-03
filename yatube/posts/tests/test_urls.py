@@ -53,7 +53,7 @@ class PostURLTests(TestCase):
             (
                 reverse(POST_DETAIL_URL, args=[cls.post.id]),
                 'posts/post_detail.html',
-            )   
+            )
         ]
 
         cls.private_urls_temp_list = [

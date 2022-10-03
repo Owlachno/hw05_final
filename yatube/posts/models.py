@@ -97,7 +97,7 @@ class Follow(models.Model):
     class Meta:
         constraints = [
             CheckConstraint(
-                check=~Q(author=F('user')), 
+                check=~Q(author=F('user')),
                 name='check_equal_author_user',
             ),
             UniqueConstraint(

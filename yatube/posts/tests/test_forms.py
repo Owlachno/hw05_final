@@ -82,7 +82,7 @@ class PostCreateFormTest(TestCase):
         self.assertTrue(
             Post.objects.filter(
                 text=form_data['text'],
-                image='posts/small.gif',
+                image=f'posts/{IMAGE_NAME}',
                 pub_date=latest_post.pub_date,
                 author=PostCreateFormTest.author,
                 group=None

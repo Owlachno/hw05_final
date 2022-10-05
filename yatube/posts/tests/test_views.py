@@ -89,9 +89,9 @@ class PostViewsTests(TestCase):
     def test_context_contains_key(self):
         """Словарь context содержит необходимый ключ"""
 
-        GROUP1 = PostViewsTests.groups_list[0].slug
-        AUTHOR_CLIENT = PostViewsTests.author.username
-        POST1 = PostViewsTests.posts_list[12].id
+        group1 = PostViewsTests.groups_list[0].slug
+        author_client = PostViewsTests.author.username
+        post1 = PostViewsTests.posts_list[12].id
 
         urls_keys_list = [
             (
@@ -100,20 +100,20 @@ class PostViewsTests(TestCase):
             ),
             (
                 reverse(
-                    GROUP_URL, args=[GROUP1]
+                    GROUP_URL, args=[group1]
                 ),
                 KEY_PAGE_OBJ,
             ),
             (
-                reverse(PROFILE_URL, args=[AUTHOR_CLIENT]),
+                reverse(PROFILE_URL, args=[author_client]),
                 KEY_PAGE_OBJ,
             ),
             (
-                reverse(POST_DETAIL_URL, args=[POST1]),
+                reverse(POST_DETAIL_URL, args=[post1]),
                 KEY_POST,
             ),
             (
-                reverse(POST_DETAIL_URL, args=[POST1]),
+                reverse(POST_DETAIL_URL, args=[post1]),
                 KEY_FORM,
             ),
             (
@@ -121,7 +121,7 @@ class PostViewsTests(TestCase):
                 KEY_FORM,
             ),
             (
-                reverse(POST_EDIT_URL, args=[POST1]),
+                reverse(POST_EDIT_URL, args=[post1]),
                 KEY_FORM,
             ),
             (
@@ -181,10 +181,10 @@ class PostViewsTests(TestCase):
         """Шаблон post_detail для поста с pk=1
         сформирован с правильным контекстом."""
 
-        POST1 = PostViewsTests.posts_list[12].pk
+        post1 = PostViewsTests.posts_list[12].pk
 
         response = self.test_client.get(
-            reverse(POST_DETAIL_URL, args=[POST1])
+            reverse(POST_DETAIL_URL, args=[post1])
         )
 
         post_object = response.context[KEY_POST]
@@ -211,10 +211,10 @@ class PostViewsTests(TestCase):
     def test_post_edit_page_show_correct_context(self):
         """Шаблон post_edit сформирован с правильным контекстом."""
 
-        POST1 = Post.objects.latest('-pub_date')
+        post1 = Post.objects.latest('-pub_date')
 
         response = self.test_client.get(
-            reverse(POST_EDIT_URL, args=[POST1.pk])
+            reverse(POST_EDIT_URL, args=[post1.pk])
         )
 
         form_fields = [
@@ -232,19 +232,19 @@ class PostViewsTests(TestCase):
         в профиле автора, post13 не отображается в group2,
         в профиле другого пользователя."""
 
-        GROUP1 = PostViewsTests.groups_list[0].slug
-        GROUP2 = PostViewsTests.groups_list[1].slug
-        AUTHOR_CLIENT = PostViewsTests.author.username
-        USER_CLIENT = PostViewsTests.user.username
+        group1 = PostViewsTests.groups_list[0].slug
+        group2 = PostViewsTests.groups_list[1].slug
+        author_client = PostViewsTests.author.username
+        user_client = PostViewsTests.user.username
 
         post13 = Post.objects.get(pk=13)
 
         response_value = [
             (reverse(INDEX_URL), True),
-            (reverse(GROUP_URL, args=[GROUP1]), True),
-            (reverse(PROFILE_URL, args=[AUTHOR_CLIENT]), True),
-            (reverse(GROUP_URL, args=[GROUP2]), False),
-            (reverse(PROFILE_URL, args=[USER_CLIENT]), False),
+            (reverse(GROUP_URL, args=[group1]), True),
+            (reverse(PROFILE_URL, args=[author_client]), True),
+            (reverse(GROUP_URL, args=[group2]), False),
+            (reverse(PROFILE_URL, args=[user_client]), False),
         ]
 
         for address, value in response_value:
@@ -256,8 +256,8 @@ class PostViewsTests(TestCase):
     def test_page_contains_ten_records(self):
         """Проверка пагинатора index group_list profile"""
 
-        GROUP1 = PostViewsTests.groups_list[0].slug
-        AUTHOR_CLIENT = PostViewsTests.author.username
+        group1 = PostViewsTests.groups_list[0].slug
+        author_client = PostViewsTests.author.username
 
         posts_per_pages_total = [
             (1, 10),
@@ -266,8 +266,8 @@ class PostViewsTests(TestCase):
 
         reverse_name = [
             reverse(INDEX_URL),
-            reverse(GROUP_URL, args=[GROUP1]),
-            reverse(PROFILE_URL, args=[AUTHOR_CLIENT]),
+            reverse(GROUP_URL, args=[group1]),
+            reverse(PROFILE_URL, args=[author_client]),
         ]
 
         for page, posts in posts_per_pages_total:

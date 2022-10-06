@@ -144,8 +144,8 @@ class PostViewsTests(TestCase):
         """Шаблоны index group_list profile
         сформированы с правильным контекстом."""
 
-        GROUP1 = PostViewsTests.groups_list[0].slug
-        AUTHOR_CLIENT = PostViewsTests.author.username
+        group1 = PostViewsTests.groups_list[0].slug
+        author_client = PostViewsTests.author.username
 
         post_list = Post.objects.all()
 
@@ -154,8 +154,8 @@ class PostViewsTests(TestCase):
 
         address_list = [
             reverse(INDEX_URL),
-            reverse(GROUP_URL, args=[GROUP1]),
-            reverse(PROFILE_URL, args=[AUTHOR_CLIENT]),
+            reverse(GROUP_URL, args=[group1]),
+            reverse(PROFILE_URL, args=[author_client]),
         ]
 
         for address in address_list:
